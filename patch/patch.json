@@ -1,0 +1,8 @@
+{
+    "name": "Eventsview controls patch with settings",
+    "description": "Remastered \"Eventsview controls patch\" you can configure using \"Eventsview controls\" settings applet.",
+    "category": "homescreen",
+    "infos": {
+        "maintainer": "coderus"
+    }
+}

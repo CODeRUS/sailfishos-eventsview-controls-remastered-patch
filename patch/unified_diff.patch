@@ -1,0 +1,181 @@
+commit f6e46e52b887849f98194aaac785a23786350910
+Author: CODeRUS <coderusinbox@gmail.com>
+Date:   Wed Dec 24 01:55:57 2014 +0500
+
+    Events view controls remastered for u10
+
+diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml
+index 40b2682..ad86309 100644
+--- a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml
++++ b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsView.qml
+@@ -13,10 +13,12 @@ import com.jolla.lipstick 0.1
+ import org.nemomobile.configuration 1.0
+ import Sailfish.Accounts 1.0
+ import "../scripts/desktop.js" as Desktop
++import org.nemomobile.transferengine 1.0
+ 
+ ApplicationWindow {
+     id: eventFeedWindow
+     property int animationDuration: Lipstick.compositor.eventsActive ? 200 : 0
++    property TransferModel transferModel: TransferModel {}
+ 
+     cover: undefined
+     enabled: !Desktop.instance.deviceIsLocked
+diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
+index 75d06b5..6847f32 100644
+--- a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
++++ b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
+@@ -67,6 +67,18 @@ NotificationListView {
+             }
+         }
+         Item {
++            id: controlsParent
++            width: parent.width
++            height: 0
++            Component.onCompleted: {
++                var controlsComponent = Qt.createComponent(Qt.resolvedUrl("FavoritesZoneControls.qml"))
++                if (controlsComponent.status == Component.Ready) {
++                    var controlsObject = controlsComponent.createObject(controlsParent)
++                    controlsParent.height = controlsObject.height
++                }
++            }
++        }
++        Item {
+             width: 1
+             height: Theme.paddingLarge
+         }
+diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
+new file mode 100644
+index 0000000..ba77d32
+--- /dev/null
++++ b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
+@@ -0,0 +1,116 @@
++import QtQuick 2.0
++import Sailfish.Silica 1.0
++import com.jolla.settings 1.0
++import org.nemomobile.configuration 1.0
++
++Column {
++    id: root
++    width: Screen.width
++    spacing: Theme.paddingLarge
++    onHeightChanged: root.parent.height = height
++
++    ConfigurationGroup {
++        id: eventsviewSettings
++        path: "/desktop/lipstick-jolla-home/eventsviewControls"
++        property int maximumGridRows: 2
++        property int maximumListRows: 2
++        property bool showOnlySwitches: true
++    }
++
++    Grid {
++        id: gridFavorites
++        columns: 4
++        rows: Math.min(Math.ceil(eventsviewSettings.showOnlySwitches ? switchesCount : gridRepeater.count / 4), eventsviewSettings.maximumGridRows)
++        width: root.width
++        clip: true
++        property int switchesCount: 0
++        signal postRefresh
++
++        Repeater {
++            id: gridRepeater
++            model: FavoritesModel { filter: "grid_favorites" }
++            onCountChanged: {
++                gridFavorites.switchesCount = 0
++                gridFavorites.postRefresh()
++            }
++
++            delegate: Item {
++                id: gridWrapper
++                height: gridLoader.height
++                width:  gridLoader.width
++                visible: (customType  || !eventsviewSettings.showOnlySwitches) && index < (4 * gridFavorites.rows)
++                property bool customType: model.object.type === "custom" && model.object.data()["params"]
++                Connections {
++                    target: gridFavorites
++                    onPostRefresh: {
++                        if (customType) {
++                            gridFavorites.switchesCount += 1
++                        }
++                    }
++                }
++                Component.onCompleted: {
++                    if (customType) {
++                        gridFavorites.switchesCount += 1
++                    }
++                }
++                Component.onDestruction: {
++                    if (customType) {
++                        gridFavorites.switchesCount -= 1
++                    }
++                }
++                SettingComponentLoader {
++                    id: gridLoader
++                    width: root.width / 4
++                    height: width
++                    settingsObject: model.object
++                    gridMode: true
++                }
++                Binding {
++                    target: gridLoader.item
++                    property: "highlighted"
++                    value: gridLoader.item && gridLoader.item.down
++                }
++                Binding {
++                    target: gridLoader.item
++                    property: "_backgroundColor"
++                    value: Theme.rgba(Theme.highlightBackgroundColor, gridLoader.item && gridLoader.item.down ?
++                                          Theme.highlightBackgroundOpacity : 0)
++                }
++            }
++        }
++    }
++
++    Grid {
++        id: listFavorites
++        width: root.width
++        columns: 1
++        rows: Math.min(listRepeater.count, eventsviewSettings.maximumListRows)
++        visible: rows > 0
++        clip: true
++        Repeater {
++            id: listRepeater
++            model: FavoritesModel { filter: "list_favorites" }
++            delegate: Item {
++                id: listWrapper
++                height: listLoader.height
++                width: root.width
++                SettingComponentLoader {
++                    id: listLoader
++                    width: root.width
++                    settingsObject: model.object
++                }
++                Binding {
++                    target: listLoader.item
++                    property: "highlighted"
++                    value: listLoader.item && listLoader.item.down
++                }
++                Binding {
++                    target: listLoader.item
++                    property: "_backgroundColor"
++                    value: Theme.rgba(Theme.highlightBackgroundColor, listLoader.item && listLoader.item.down ?
++                                          Theme.highlightBackgroundOpacity : 0)
++                }
++            }
++        }
++    }
++}
+diff --git a/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml b/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml
+index 070dab9..6d6e827 100644
+--- a/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml
++++ b/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml
+@@ -1,7 +1,7 @@
+ import QtQuick 2.0
+ import Sailfish.Silica 1.0
+ import com.jolla.settings.system 1.0
+-import org.nemomobile.systemsettings 1.0
++import Sailfish.Ambience 1.0
+ 
+ 
+ Slider {

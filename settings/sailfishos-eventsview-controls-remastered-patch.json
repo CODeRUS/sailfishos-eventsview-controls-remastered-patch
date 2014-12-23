@@ -1,0 +1,16 @@
+{
+    "translation_catalog": "sailfishos-eventsview-controls-remastered-patch",
+    "entries": [
+        {
+            "path": "system_settings/look_and_feel/sailfishos-eventsview-controls-remastered-patch",
+            "type": "page",
+            "title": "Eventsview controls",
+            "translation_id": "sailfishos-eventsview-controls-remastered-patch-title",
+            "icon": "/usr/share/patchmanager/icons/icon-m-patchmanager.png",
+            "order": 5000,
+            "params": {
+                "source": "/usr/share/jolla-settings/pages/sailfishos-eventsview-controls-remastered-patch/main.qml"
+            }
+        }
+    ]
+}
