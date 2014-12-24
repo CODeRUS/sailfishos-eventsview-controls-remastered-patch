@@ -189,3 +189,36 @@ index c548c7f..2fc32b7 100644
          id: profileControl
          onRingerVolumeChanged: slider.value = profileControl.ringerVolume
      }
+diff --git a/usr/share/jolla-settings/pages/mobilenetworking/DataConnection.qml b/usr/share/jolla-settings/pages/mobilenetworking/DataConnection.qml
+index 1017a73..84ccc54 100644
+--- a/usr/share/jolla-settings/pages/mobilenetworking/DataConnection.qml
++++ b/usr/share/jolla-settings/pages/mobilenetworking/DataConnection.qml
+@@ -2,6 +2,7 @@ import QtQuick 2.0
+ import Sailfish.Silica 1.0
+ import MeeGo.QOfono 0.2
+ import MeeGo.Connman 0.2
++import org.nemomobile.configuration 1.0
+ 
+ Item {
+     id: root
+@@ -13,6 +14,11 @@ Item {
+     property int index: -1
+     property bool valid: service.path !== ""
+ 
++    ConfigurationValue {
++        id: subscriberIdentity
++        key: "/apps/jolla-settings/cellular_subscriberidentity"
++    }
++
+     OfonoManager { id: manager }
+ 
+     OfonoConnMan {
+@@ -42,7 +48,7 @@ Item {
+             }
+ 
+             var list = networkFactory.instance.servicesList("cellular")
+-            service.path = root.index < list.length ? list[root.index] : ""
++            service.path = root.index < list.length ? list[root.index] : ("/net/connman/service/cellular_" + subscriberIdentity.value + "_context1")
+ 
+             root.valid = service.path !== ""
+         }
