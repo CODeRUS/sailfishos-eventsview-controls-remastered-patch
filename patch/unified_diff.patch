@@ -47,7 +47,7 @@ new file mode 100644
 index 0000000..02c1de9
 --- /dev/null
 +++ b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
-@@ -0,0 +1,117 @@
+@@ -0,0 +1,118 @@
 +import QtQuick 2.1
 +import Sailfish.Silica 1.0
 +import com.jolla.settings 1.0
@@ -65,6 +65,7 @@ index 0000000..02c1de9
 +        property int maximumListRows: 2
 +        property bool showOnlySwitches: true
 +        property int gridColumns: 4
++        property bool alignGridToBottom: false
 +    }
 +
 +    Grid {
@@ -72,7 +73,7 @@ index 0000000..02c1de9
 +        columns: eventsviewSettings.gridColumns
 +        rows: Math.min(Math.ceil(eventsviewSettings.showOnlySwitches ? switchesCount : gridRepeater.count / eventsviewSettings.gridColumns), eventsviewSettings.maximumGridRows)
 +        width: root.width
-+        verticalItemAlignment: Grid.AlignBottom
++        verticalItemAlignment: eventsviewSettings.alignGridToBottom ? Grid.AlignBottom : Grid.AlignVCenter
 +        clip: true
 +        property int switchesCount: 0
 +        signal postRefresh
@@ -220,3 +221,120 @@ index 1017a73..84ccc54 100644
  
              root.valid = service.path !== ""
          }
+diff --git a/usr/share/jolla-settings/pages/bluetooth/EnableSwitch.qml b/usr/share/jolla-settings/pages/bluetooth/EnableSwitch.qml
+index f316cda..fff0be1 100644
+--- a/usr/share/jolla-settings/pages/bluetooth/EnableSwitch.qml
++++ b/usr/share/jolla-settings/pages/bluetooth/EnableSwitch.qml
+@@ -3,43 +3,28 @@ import Sailfish.Silica 1.0
+ import Sailfish.Bluetooth 1.0
+ import MeeGo.Connman 0.2
+ 
+-Item {
+-    id: container
+-    height: width
+-
++Switch {
++    id: pwrSwitch
+     property string entryPath
+-    property bool highlighted
+-    property bool checked: pwrSwitch.checked
+-
+-    signal pressAndHold
+-
+-    Switch {
+-        id: pwrSwitch
++    anchors.centerIn: parent
++    icon.source: "image://theme/icon-m-bluetooth"
++    automaticCheck: false
++    checked: btTechModel.powered && adapter.powered
+ 
+-        anchors.centerIn: parent
+-        icon.source: "image://theme/icon-m-bluetooth"
+-        automaticCheck: false
+-        checked: btTechModel.powered && adapter.powered
+-        highlighted: down || container.highlighted
+-
+-        TechnologyModel {
+-            id: btTechModel
+-            name: "bluetooth"
+-        }
++    BluetoothAdapter {
++        id: adapter
++    }
+ 
+-        onCheckedChanged: {
+-            busy = false
+-        }
+-        onClicked: {
+-            btTechModel.powered = !btTechModel.powered
+-            busy = true
+-        }
+-        onPressAndHold: {
+-            container.pressAndHold()
+-        }
++    TechnologyModel {
++        id: btTechModel
++        name: "bluetooth"
+     }
+ 
+-    BluetoothAdapter {
+-        id: adapter
++    onCheckedChanged: {
++        busy = false
++    }
++    onClicked: {
++        btTechModel.powered = !btTechModel.powered
++        busy = true
+     }
+ }
+diff --git a/usr/share/jolla-settings/pages/gps_and_location/LocationSwitch.qml b/usr/share/jolla-settings/pages/gps_and_location/LocationSwitch.qml
+index c340184..b6d7010 100644
+--- a/usr/share/jolla-settings/pages/gps_and_location/LocationSwitch.qml
++++ b/usr/share/jolla-settings/pages/gps_and_location/LocationSwitch.qml
+@@ -3,29 +3,12 @@ import Sailfish.Silica 1.0
+ import MeeGo.Connman 0.2
+ import com.jolla.settings.system 1.0
+ 
+-Item {
+-    id: container
+-    height: width
+-
+-    property string entryPath
+-    property bool highlighted
+-    signal pressAndHold
+-
+-    Switch {
+-        anchors.centerIn: parent
+-        icon.source: "image://theme/icon-m-gps"
+-        automaticCheck: false
+-        checked: locationSettings.locationEnabled && gpsTechModel.powered
+-        highlighted: down || container.highlighted
+-
+-        onClicked: {
+-            var newState = !checked
+-            locationSettings.locationEnabled = newState
+-            gpsTechModel.powered = newState
+-        }
+-
+-        onPressAndHold: container.pressAndHold()
+-    }
++Switch {
++property string entryPath
++    anchors.centerIn: parent
++    icon.source: "image://theme/icon-m-gps"
++    automaticCheck: false
++    checked: locationSettings.locationEnabled && gpsTechModel.powered
+ 
+     TechnologyModel {
+         id: gpsTechModel
+@@ -35,4 +18,10 @@ Item {
+     LocationSettings {
+         id: locationSettings
+     }
++
++    onClicked: {
++        var newState = !checked
++        locationSettings.locationEnabled = newState
++        gpsTechModel.powered = newState
++    }
+ }
