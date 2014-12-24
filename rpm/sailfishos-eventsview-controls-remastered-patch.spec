@@ -10,13 +10,15 @@ BuildArch: armv7hl
 # << macros
 
 Summary:    Eventsview controls patch with settings
-Version:    0.0.5
+Version:    0.0.9
 Release:    1
 Group:      Qt/Qt
 License:    TODO
 Source0:    %{name}-%{version}.tar.bz2
 Requires:   patchmanager
 Requires:   lipstick-jolla-home-qt5 >= 0.23.20.11
+Conflicts:  sailfishos-eventsview-controls-1row-volume-patch
+Obsoletes:  sailfishos-eventsview-controls-1row-volume-patch
 
 %description
 Remastered Eventsview controls patch you can configure using Eventsview
@@ -43,10 +45,10 @@ rm -rf %{buildroot}
 # >> install pre
 mkdir -p %{buildroot}/usr/share/patchmanager/patches/sailfishos-eventsview-controls-remastered-patch
 cp -r patch/* %{buildroot}/usr/share/patchmanager/patches/sailfishos-eventsview-controls-remastered-patch
-mkdir -p %{buildroot}/usr/share/jolla-settings/pages
+mkdir -p %{buildroot}/usr/share/jolla-settings/pages/sailfishos-eventsview-controls-remastered-patch
 cp -r settings/*.qml %{buildroot}/usr/share/jolla-settings/pages/sailfishos-eventsview-controls-remastered-patch
 mkdir -p %{buildroot}/usr/share/jolla-settings/entries
-cp -r settings/*.json %{buildroot}/usr/share/jolla-settings/entries/sailfishos-eventsview-controls-remastered-patch
+cp -r settings/*.json %{buildroot}/usr/share/jolla-settings/entries/
 # << install pre
 
 # >> install post
