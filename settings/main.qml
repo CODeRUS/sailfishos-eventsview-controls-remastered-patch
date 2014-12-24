@@ -11,6 +11,7 @@ Page {
         property int maximumGridRows: 2
         property int maximumListRows: 2
         property bool showOnlySwitches: true
+        property int gridColumns: 4
     }
 
 	SilicaFlickable {
@@ -24,6 +25,26 @@ Page {
 
 			PageHeader {
 				title: "Eventsview controls settings"
+			}
+
+			TextSwitch {
+				width: parent.width
+				text: "Show only switch controls in grid"
+				checked: eventsviewSettings.showOnlySwitches
+				onClicked: eventsviewSettings.showOnlySwitches = checked
+			}
+
+			Slider {
+				width: parent.width
+			    label: "Grid columns"
+			    maximumValue: 10
+			    minimumValue: 1
+			    stepSize: 1
+			    value: eventsviewSettings.gridColumns
+			    valueText: value
+
+			    onValueChanged: eventsviewSettings.gridColumns = Math.round(value)
+			    onPressAndHold: cancel()
 			}
 
 			Slider {
@@ -50,13 +71,6 @@ Page {
 
 			    onValueChanged: eventsviewSettings.maximumListRows = Math.round(value)
 			    onPressAndHold: cancel()
-			}
-
-			TextSwitch {
-				width: parent.width
-				text: "Show only switch controls in grid"
-				checked: eventsviewSettings.showOnlySwitches
-				onClicked: eventsviewSettings.showOnlySwitches = checked
 			}
 		}
 	}

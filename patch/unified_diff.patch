@@ -22,35 +22,33 @@ index 40b2682..ad86309 100644
      cover: undefined
      enabled: !Desktop.instance.deviceIsLocked
 diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
-index 75d06b5..6847f32 100644
+index 75d06b5..1691e58 100644
 --- a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
 +++ b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
-@@ -67,6 +67,18 @@ NotificationListView {
+@@ -66,6 +66,16 @@ NotificationListView {
+                 list.positionViewAtBeginning()
              }
          }
-         Item {
++        Column {
 +            id: controlsParent
 +            width: parent.width
-+            height: 0
 +            Component.onCompleted: {
 +                var controlsComponent = Qt.createComponent(Qt.resolvedUrl("FavoritesZoneControls.qml"))
 +                if (controlsComponent.status == Component.Ready) {
-+                    var controlsObject = controlsComponent.createObject(controlsParent)
-+                    controlsParent.height = controlsObject.height
++                    controlsComponent.createObject(controlsParent)
 +                }
 +            }
 +        }
-+        Item {
+         Item {
              width: 1
              height: Theme.paddingLarge
-         }
 diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
 new file mode 100644
-index 0000000..ba77d32
+index 0000000..02c1de9
 --- /dev/null
 +++ b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
 @@ -0,0 +1,117 @@
-+import QtQuick 2.0
++import QtQuick 2.1
 +import Sailfish.Silica 1.0
 +import com.jolla.settings 1.0
 +import org.nemomobile.configuration 1.0
@@ -59,7 +57,6 @@ index 0000000..ba77d32
 +    id: root
 +    width: Screen.width
 +    spacing: Theme.paddingLarge
-+    onHeightChanged: root.parent.height = height
 +
 +    ConfigurationGroup {
 +        id: eventsviewSettings
@@ -67,13 +64,15 @@ index 0000000..ba77d32
 +        property int maximumGridRows: 2
 +        property int maximumListRows: 2
 +        property bool showOnlySwitches: true
++        property int gridColumns: 4
 +    }
 +
 +    Grid {
 +        id: gridFavorites
-+        columns: 4
-+        rows: Math.min(Math.ceil(eventsviewSettings.showOnlySwitches ? switchesCount : gridRepeater.count / 4), eventsviewSettings.maximumGridRows)
++        columns: eventsviewSettings.gridColumns
++        rows: Math.min(Math.ceil(eventsviewSettings.showOnlySwitches ? switchesCount : gridRepeater.count / eventsviewSettings.gridColumns), eventsviewSettings.maximumGridRows)
 +        width: root.width
++        verticalItemAlignment: Grid.AlignBottom
 +        clip: true
 +        property int switchesCount: 0
 +        signal postRefresh
@@ -90,7 +89,7 @@ index 0000000..ba77d32
 +                id: gridWrapper
 +                height: gridLoader.height
 +                width:  gridLoader.width
-+                visible: (customType  || !eventsviewSettings.showOnlySwitches) && index < (4 * gridFavorites.rows)
++                visible: (customType  || !eventsviewSettings.showOnlySwitches) && index < (eventsviewSettings.gridColumns * gridFavorites.rows)
 +                property bool customType: model.object.type === "custom" && model.object.data()["params"]
 +                Connections {
 +                    target: gridFavorites
@@ -112,8 +111,7 @@ index 0000000..ba77d32
 +                }
 +                SettingComponentLoader {
 +                    id: gridLoader
-+                    width: root.width / 4
-+                    height: width
++                    width: root.width / eventsviewSettings.gridColumns
 +                    settingsObject: model.object
 +                    gridMode: true
 +                }
