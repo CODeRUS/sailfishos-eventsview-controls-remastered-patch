@@ -47,7 +47,7 @@ new file mode 100644
 index 0000000..02c1de9
 --- /dev/null
 +++ b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,132 @@
 +import QtQuick 2.1
 +import Sailfish.Silica 1.0
 +import com.jolla.settings 1.0
@@ -92,6 +92,7 @@ index 0000000..02c1de9
 +                width:  gridLoader.width
 +                visible: (customType  || !eventsviewSettings.showOnlySwitches) && index < (eventsviewSettings.gridColumns * gridFavorites.rows)
 +                property bool customType: model.object.type === "custom" && model.object.data()["params"]
++                property int originalHeight
 +                Connections {
 +                    target: gridFavorites
 +                    onPostRefresh: {
@@ -99,6 +100,18 @@ index 0000000..02c1de9
 +                            gridFavorites.switchesCount += 1
 +                        }
 +                    }
++                }
++                Binding {
++                    target: gridLoader
++                    property: "height"
++                    value: gridWrapper.originalHeight
++                    when: gridLoader.status == Loader.Ready && eventsviewSettings.alignGridToBottom
++                }
++                Binding {
++                    target: gridLoader
++                    property: "height"
++                    value: gridLoader.width
++                    when: gridLoader.status == Loader.Ready && !eventsviewSettings.alignGridToBottom
 +                }
 +                Component.onCompleted: {
 +                    if (customType) {
@@ -115,6 +128,7 @@ index 0000000..02c1de9
 +                    width: root.width / eventsviewSettings.gridColumns
 +                    settingsObject: model.object
 +                    gridMode: true
++                    onLoaded: gridWrapper.originalHeight = item.height
 +                }
 +                Binding {
 +                    target: gridLoader.item

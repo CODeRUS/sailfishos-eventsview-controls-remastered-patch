@@ -10,7 +10,7 @@ BuildArch: armv7hl
 # << macros
 
 Summary:    Eventsview controls patch with settings
-Version:    0.0.12
+Version:    0.0.14
 Release:    1
 Group:      Qt/Qt
 License:    TODO
@@ -56,12 +56,16 @@ cp -r settings/*.json %{buildroot}/usr/share/jolla-settings/entries/
 
 %pre
 # >> pre
-/usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch
+if [ -f /usr/sbin/patchmanager ]; then
+/usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch || true
+fi
 # << pre
 
 %preun
 # >> preun
-/usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch
+if [ -f /usr/sbin/patchmanager ]; then
+/usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch || true
+fi
 # << preun
 
 %files
