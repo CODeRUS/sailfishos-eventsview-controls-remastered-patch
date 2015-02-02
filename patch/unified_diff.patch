@@ -25,7 +25,7 @@ diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml b/u
 index 75d06b5..1691e58 100644
 --- a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
 +++ b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
-@@ -66,6 +66,16 @@ NotificationListView {
+@@ -67,6 +67,16 @@ NotificationListView {
                  list.positionViewAtBeginning()
              }
          }
@@ -39,9 +39,9 @@ index 75d06b5..1691e58 100644
 +                }
 +            }
 +        }
+         WeatherLoader {}
          Item {
-             width: 1
-             height: Theme.paddingLarge
+             width: parent.width
 diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
 new file mode 100644
 index 0000000..02c1de9

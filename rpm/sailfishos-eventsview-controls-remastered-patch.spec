@@ -10,13 +10,13 @@ BuildArch: armv7hl
 # << macros
 
 Summary:    Eventsview controls patch with settings
-Version:    0.0.14
+Version:    0.0.15
 Release:    1
 Group:      Qt/Qt
 License:    TODO
 Source0:    %{name}-%{version}.tar.bz2
 Requires:   patchmanager
-Requires:   lipstick-jolla-home-qt5 >= 0.23.20.11
+Requires:   lipstick-jolla-home-qt5 >= 0.24.23.1
 Conflicts:  sailfishos-eventsview-controls-1row-volume-patch
 Obsoletes:  sailfishos-eventsview-controls-1row-volume-patch
 
