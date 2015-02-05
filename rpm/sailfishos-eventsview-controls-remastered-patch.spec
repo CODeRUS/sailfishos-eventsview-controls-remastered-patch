@@ -10,7 +10,7 @@ BuildArch: armv7hl
 # << macros
 
 Summary:    Eventsview controls patch with settings
-Version:    0.0.14
+Version:    0.0.15
 Release:    1
 Group:      Qt/Qt
 License:    TODO

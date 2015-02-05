@@ -55,7 +55,7 @@ index 0000000..02c1de9
 +
 +Column {
 +    id: root
-+    width: Screen.width
++    width: parent.width
 +    spacing: Theme.paddingLarge
 +
 +    ConfigurationGroup {
