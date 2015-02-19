@@ -58,6 +58,7 @@ cp -r settings/*.json %{buildroot}/usr/share/jolla-settings/entries/
 # >> pre
 if [ -f /usr/sbin/patchmanager ]; then
 /usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch || true
+rm /usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml || true
 fi
 # << pre
 
@@ -65,6 +66,7 @@ fi
 # >> preun
 if [ -f /usr/sbin/patchmanager ]; then
 /usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch || true
+rm /usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml || true
 fi
 # << preun
 
