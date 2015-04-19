@@ -16,19 +16,19 @@ index 40b2682..ad86309 100644
  
  ApplicationWindow {
      id: eventFeedWindow
-     property int animationDuration: Lipstick.compositor.eventsActive ? 200 : 0
+     property int animationDuration: Lipstick.compositor.eventsLayer.active ? 200 : 0
 +    property TransferModel transferModel: TransferModel {}
  
      cover: undefined
      enabled: !Desktop.instance.deviceIsLocked
 diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
-index 75d06b5..1691e58 100644
+index 338ec11..f12cf75 100644
 --- a/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
 +++ b/usr/share/lipstick-jolla-home-qt5/eventsview/EventsViewList.qml
-@@ -67,6 +67,16 @@ NotificationListView {
-                 list.positionViewAtBeginning()
+@@ -69,6 +69,16 @@ NotificationListView {
              }
          }
+         WeatherLoader {}
 +        Column {
 +            id: controlsParent
 +            width: parent.width
@@ -39,147 +39,9 @@ index 75d06b5..1691e58 100644
 +                }
 +            }
 +        }
-         WeatherLoader {}
          Item {
              width: parent.width
-diff --git a/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
-new file mode 100644
-index 0000000..02c1de9
---- /dev/null
-+++ b/usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml
-@@ -0,0 +1,132 @@
-+import QtQuick 2.1
-+import Sailfish.Silica 1.0
-+import com.jolla.settings 1.0
-+import org.nemomobile.configuration 1.0
-+
-+Column {
-+    id: root
-+    width: parent.width
-+    spacing: Theme.paddingLarge
-+
-+    ConfigurationGroup {
-+        id: eventsviewSettings
-+        path: "/desktop/lipstick-jolla-home/eventsviewControls"
-+        property int maximumGridRows: 2
-+        property int maximumListRows: 2
-+        property bool showOnlySwitches: true
-+        property int gridColumns: 4
-+        property bool alignGridToBottom: false
-+    }
-+
-+    Grid {
-+        id: gridFavorites
-+        columns: eventsviewSettings.gridColumns
-+        rows: Math.min(Math.ceil(eventsviewSettings.showOnlySwitches ? switchesCount : gridRepeater.count / eventsviewSettings.gridColumns), eventsviewSettings.maximumGridRows)
-+        width: root.width
-+        verticalItemAlignment: eventsviewSettings.alignGridToBottom ? Grid.AlignBottom : Grid.AlignVCenter
-+        clip: true
-+        property int switchesCount: 0
-+        signal postRefresh
-+
-+        Repeater {
-+            id: gridRepeater
-+            model: FavoritesModel { filter: "grid_favorites" }
-+            onCountChanged: {
-+                gridFavorites.switchesCount = 0
-+                gridFavorites.postRefresh()
-+            }
-+
-+            delegate: Item {
-+                id: gridWrapper
-+                height: gridLoader.height
-+                width:  gridLoader.width
-+                visible: (customType  || !eventsviewSettings.showOnlySwitches) && index < (eventsviewSettings.gridColumns * gridFavorites.rows)
-+                property bool customType: model.object.type === "custom" && model.object.data()["params"]
-+                property int originalHeight
-+                Connections {
-+                    target: gridFavorites
-+                    onPostRefresh: {
-+                        if (customType) {
-+                            gridFavorites.switchesCount += 1
-+                        }
-+                    }
-+                }
-+                Binding {
-+                    target: gridLoader
-+                    property: "height"
-+                    value: gridWrapper.originalHeight
-+                    when: gridLoader.status == Loader.Ready && eventsviewSettings.alignGridToBottom
-+                }
-+                Binding {
-+                    target: gridLoader
-+                    property: "height"
-+                    value: gridLoader.width
-+                    when: gridLoader.status == Loader.Ready && !eventsviewSettings.alignGridToBottom
-+                }
-+                Component.onCompleted: {
-+                    if (customType) {
-+                        gridFavorites.switchesCount += 1
-+                    }
-+                }
-+                Component.onDestruction: {
-+                    if (customType) {
-+                        gridFavorites.switchesCount -= 1
-+                    }
-+                }
-+                SettingComponentLoader {
-+                    id: gridLoader
-+                    width: root.width / eventsviewSettings.gridColumns
-+                    settingsObject: model.object
-+                    gridMode: true
-+                    onLoaded: gridWrapper.originalHeight = item.height
-+                }
-+                Binding {
-+                    target: gridLoader.item
-+                    property: "highlighted"
-+                    value: gridLoader.item && gridLoader.item.down
-+                }
-+                Binding {
-+                    target: gridLoader.item
-+                    property: "_backgroundColor"
-+                    value: Theme.rgba(Theme.highlightBackgroundColor, gridLoader.item && gridLoader.item.down ?
-+                                          Theme.highlightBackgroundOpacity : 0)
-+                }
-+            }
-+        }
-+    }
-+
-+    Grid {
-+        id: listFavorites
-+        width: root.width
-+        columns: 1
-+        rows: Math.min(listRepeater.count, eventsviewSettings.maximumListRows)
-+        visible: rows > 0
-+        clip: true
-+        Repeater {
-+            id: listRepeater
-+            model: FavoritesModel { filter: "list_favorites" }
-+            delegate: Item {
-+                id: listWrapper
-+                height: listLoader.height
-+                width: root.width
-+                visible: index < listFavorites.rows
-+                SettingComponentLoader {
-+                    id: listLoader
-+                    width: root.width
-+                    settingsObject: model.object
-+                }
-+                Binding {
-+                    target: listLoader.item
-+                    property: "highlighted"
-+                    value: listLoader.item && listLoader.item.down
-+                }
-+                Binding {
-+                    target: listLoader.item
-+                    property: "_backgroundColor"
-+                    value: Theme.rgba(Theme.highlightBackgroundColor, listLoader.item && listLoader.item.down ?
-+                                          Theme.highlightBackgroundOpacity : 0)
-+                }
-+            }
-+        }
-+    }
-+}
+             height: childrenRect.height
 diff --git a/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml b/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml
 index c548c7f..2fc32b7 100644
 --- a/usr/share/jolla-settings/pages/sounds/VolumeSlider.qml

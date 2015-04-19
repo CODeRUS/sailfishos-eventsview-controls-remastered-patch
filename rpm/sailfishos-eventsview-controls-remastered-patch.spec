@@ -10,13 +10,13 @@ BuildArch: armv7hl
 # << macros
 
 Summary:    Eventsview controls patch with settings
-Version:    0.0.16
+Version:    0.0.18
 Release:    1
 Group:      Qt/Qt
 License:    TODO
 Source0:    %{name}-%{version}.tar.bz2
 Requires:   patchmanager
-Requires:   lipstick-jolla-home-qt5 >= 0.24.23.1
+Requires:   lipstick-jolla-home-qt5 >= 0.24.41.3
 Conflicts:  sailfishos-eventsview-controls-1row-volume-patch
 Obsoletes:  sailfishos-eventsview-controls-1row-volume-patch
 
@@ -47,8 +47,11 @@ mkdir -p %{buildroot}/usr/share/patchmanager/patches/sailfishos-eventsview-contr
 cp -r patch/* %{buildroot}/usr/share/patchmanager/patches/sailfishos-eventsview-controls-remastered-patch
 mkdir -p %{buildroot}/usr/share/jolla-settings/pages/sailfishos-eventsview-controls-remastered-patch
 cp -r settings/*.qml %{buildroot}/usr/share/jolla-settings/pages/sailfishos-eventsview-controls-remastered-patch
+cp -r settings/*.png %{buildroot}/usr/share/jolla-settings/pages/sailfishos-eventsview-controls-remastered-patch
 mkdir -p %{buildroot}/usr/share/jolla-settings/entries
 cp -r settings/*.json %{buildroot}/usr/share/jolla-settings/entries/
+mkdir -p %{buildroot}/usr/share/lipstick-jolla-home-qt5/eventsview
+cp -r patch/*.qml %{buildroot}/usr/share/lipstick-jolla-home-qt5/eventsview
 # << install pre
 
 # >> install post
@@ -58,7 +61,6 @@ cp -r settings/*.json %{buildroot}/usr/share/jolla-settings/entries/
 # >> pre
 if [ -f /usr/sbin/patchmanager ]; then
 /usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch || true
-rm /usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml || true
 fi
 # << pre
 
@@ -66,7 +68,6 @@ fi
 # >> preun
 if [ -f /usr/sbin/patchmanager ]; then
 /usr/sbin/patchmanager -u sailfishos-eventsview-controls-remastered-patch || true
-rm /usr/share/lipstick-jolla-home-qt5/eventsview/FavoritesZoneControls.qml || true
 fi
 # << preun
 
@@ -75,5 +76,6 @@ fi
 %{_datadir}/patchmanager/patches/sailfishos-eventsview-controls-remastered-patch
 %{_datadir}/jolla-settings/entries
 %{_datadir}/jolla-settings/pages
+%{_datadir}/lipstick-jolla-home-qt5/eventsview
 # >> files
 # << files
